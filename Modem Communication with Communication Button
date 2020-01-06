@@ -1,0 +1,80 @@
+'For programming tips, copy this address to your browser
+'search window:https://www.campbellsci.com/videos/datalogger-programming
+' Ian Higgins
+
+'CR300 Series Datalogger
+
+'SW12V and Internal CR210 capable to switch between modem types activate/deactivate the respective lines of code
+
+Public PTemp, Batt_volt
+Public forcetalk ' says if channel is open
+Public Rtime(9)
+
+
+'Define Data Tables.
+DataTable (Test,1,-1) 'Set table size to # of records, or -1 to autoallocate.
+	DataInterval (0,15,Sec,10)
+	Minimum (1,Batt_volt,FP2,False,False)
+	Sample (1,PTemp,FP2)
+	Sample (1,forcetalk,FP2)
+EndTable
+
+'Sub Communicate
+'If Batt_volt <12.0 Then
+				' SetSetting ("CellEnabled",False) 'Turn off cell210 
+				  ' SW12State=False 'Turn off external modem
+				'Else
+				'SetSetting ("CellEnabled",True) 'Turn on cell210 
+				 ' SW12State=True 'Turn on external modem
+				 'EndIf
+'ExitSub 
+
+'Main Program
+BeginProg 'blinks a light every second
+	Scan (1,Sec,0,0)
+		PanelTemp (PTemp,60)
+		Battery (Batt_volt)
+		VoltDiff (forcetalk,1,mV2500,3,True ,0,60,1.0,0) 'DIFF Channel 3
+		CallTable Test
+	NextScan
+
+SlowSequence
+  Scan (1,Sec,0,0) 'I think both slowsequences have to have the same scan interval
+   RealTime(RTime(1))
+  If (RTime(4)=14 OR RTime(4)=16 OR RTime(4)=19 OR RTime(4)=0) AND RTime(5)<8
+ 'swiitch on modem before hour to download in first minute
+   'If RTime(5)>55  OR RTime(5)<8
+				If Batt_volt <12.0 Then
+				  SetSetting ("CellEnabled",False) 'Turn off cell210 
+				  ' SW12State=False 'Turn off external modem
+				Else
+				 SetSetting ("CellEnabled",True) 'Turn on cell210 
+				 ' SW12State=True 'Turn on external modem
+				 CallTable Test
+				EndIf
+		Else
+			  SetSetting ("CellEnabled",False) 'Turn off cell210 		
+			  ' SW12State=True 'Turn on external modem			
+	EndIf
+	NextScan
+  EndSequence 
+
+ 
+' to force communication
+  SlowSequence
+  Scan (1,Sec,0,0)
+   
+    If forcetalk < 1 AND forcetalk > -1 Then 
+      If Batt_volt <12.0 Then
+				 SetSetting ("CellEnabled",False) 'Turn off cell210 
+				  'SW12State=False 'Turn off external modem
+				Else
+				SetSetting ("CellEnabled",True) 'Turn on cell210 
+				 ' SW12State=True 'Turn on external modem
+     CallTable Test
+    EndIf 
+    EndIF
+    NextScan
+  EndSequence 
+EndProg
+
