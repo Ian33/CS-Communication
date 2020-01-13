@@ -1,0 +1,45 @@
+
+'Program author: Ian Higgins
+
+'Declare Constants
+'Example:
+'CONST PI = 3.141592654 or Const PI = 4*ATN(1)
+
+'Declare Public Variables
+'Example:
+Public PTemp, Batt_volt
+Public OS_String As String 
+Public Filter_Cell210 As String
+Public Modem_String As String
+
+'Declare Private Variables
+'Example:
+'Dim Counter
+
+'Define Data Tables.
+DataTable (Test,1,-1) 'Set table size to # of records, or -1 to autoallocate.
+	DataInterval (0,15,Sec,10)
+	Minimum (1,Batt_volt,FP2,False,False)
+	Sample (1,PTemp,FP2)
+EndTable
+
+'Define Subroutines
+'Sub
+		
+'EndSub
+
+'Main Program
+BeginProg
+    ' gets OS from Settings Table, this doesnt have to be in a scan but cannot be in a sub because a table is called (or so I think)
+    OS_String = Status.OSVersion(3,0)
+		Filter_Cell210 = "CELL210"
+		Modem_String = InStr(1,OS_String,Filter_Cell210,2)
+	Scan (1,Sec,0,0)
+		PanelTemp (PTemp,60)
+		Battery (Batt_volt)
+		'Enter other measurement instructions
+		'Call Output Tables
+		'Example:
+		CallTable Test
+	NextScan
+EndProg
