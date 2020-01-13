@@ -1,4 +1,3 @@
-
 'Program author: Ian Higgins
 
 'Declare Constants
@@ -11,10 +10,13 @@ Public PTemp, Batt_volt
 Public OS_String As String 
 Public Filter_Cell210 As String
 Public Modem_String As String
+Public Internal_Modem
 
 'Declare Private Variables
 'Example:
 'Dim Counter
+
+
 
 'Define Data Tables.
 DataTable (Test,1,-1) 'Set table size to # of records, or -1 to autoallocate.
@@ -24,7 +26,7 @@ DataTable (Test,1,-1) 'Set table size to # of records, or -1 to autoallocate.
 EndTable
 
 'Define Subroutines
-'Sub
+'Sub 
 		
 'EndSub
 
@@ -32,10 +34,16 @@ EndTable
 BeginProg
     ' gets OS from Settings Table, this doesnt have to be in a scan but cannot be in a sub because a table is called (or so I think)
     OS_String = Status.OSVersion(3,0)
-		Filter_Cell210 = "CELL210"
+	Filter_Cell210 = "CELL210" 'while CRBasic is not case sensitive searching in a string is case sensitive
 		Modem_String = InStr(1,OS_String,Filter_Cell210,2)
 	Scan (1,Sec,0,0)
-		PanelTemp (PTemp,60)
+	Internal_Modem= IIF(Modem_String = "CELL210",0,1) ' if no internal modem return zero, if internal modem (CELL210) return 1
+		'Internal_Modem = True
+	'	Else Internal_Modem = False
+		'EndIf 
+		
+		  
+		'PanelTemp (PTemp,60)
 		Battery (Batt_volt)
 		'Enter other measurement instructions
 		'Call Output Tables
