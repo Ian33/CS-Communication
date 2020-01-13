@@ -1,0 +1,37 @@
+        Internal_Modem= IIF(Modem_String = "CELL210",0,1) ' if no internal modem return zero, if internal modem (CELL210) return 1
+	
+
+	Scan (1,Sec,0,0)
+		PanelTemp (PTemp,60)
+		Battery (Batt_volt)
+		VoltDiff (forcetalk,1,mV2500,3,True ,0,60,1.0,0) 'DIFF Channel 3
+		CallTable Test
+	NextScan
+
+'for standard communication
+SlowSequence
+  Scan (1,Sec,0,0) 'I think both slowsequences have to have the same scan interval
+   RealTime(RTime(1))
+  If (RTime(4)=14 OR RTime(4)=16 OR RTime(4)=19 OR RTime(4)=0) AND RTime(5)<8
+ 'swiitch on modem before hour to download in first minute
+				  Call BatteryCommunicate
+		Else
+			 Call CloseCommunicate		
+	EndIf
+	CallTable Test
+	  NextScan
+  EndSequence 
+
+ 
+' to force communication
+  SlowSequence
+  Scan (1,Sec,0,0)
+    If forcetalk < 1 AND forcetalk > -1 Then 
+     Call BatteryCommunicate 
+     Else
+    Call Internal_External_Modem_OFF
+    EndIf
+    CallTable Test
+    NextScan
+  EndSequence 
+EndProg
