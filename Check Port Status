@@ -1,0 +1,49 @@
+
+'Program author: IHIGGINS
+' returns status of Port C1 (level logger).  Note since this code is before the scan statement the port status will only be checked once when program is fired up.  
+
+'Declare Constants
+'Example:
+'CONST PI = 3.141592654 or Const PI = 4*ATN(1)
+
+'Declare Public Variables
+'Example:
+Public PTemp, Batt_volt
+Public Level_Logger_Status As Boolean 
+Public CS450(2)
+Alias CS450(1)=Lvl_ft
+
+Units Lvl_ft=feet
+
+'Declare Private Variables
+'Example:
+'Dim Counter
+
+'Define Data Tables.
+DataTable (Test,1,-1) 'Set table size to # of records, or -1 to autoallocate.
+	DataInterval (0,15,Sec,10)
+	Minimum (1,Batt_volt,FP2,False,False)
+	Sample (1,PTemp,FP2)
+	Sample(1,Lvl_ft,FP2)
+EndTable
+
+'Define Subroutines
+'Sub
+	'EnterSub instructions here
+'EndSub
+
+'Main Program
+BeginProg
+  PortGet (Level_Logger_Status,C1 )
+  
+	Scan (1,Sec,0,0)
+		PanelTemp (PTemp,60)
+		Battery (Batt_volt)
+		SDI12Recorder(Lvl_ft,C1,"0","M1!",1,0,-1)
+		Lvl_ft=Lvl_ft*2.2698
+		'Enter other measurement instructions
+		'Call Output Tables
+		'Example:
+		CallTable Test
+	NextScan
+EndProg
